@@ -88,6 +88,20 @@ app.post('/collection/:collectionName', async (req, res, next) => {
     }
 });
 
+// Route to save a new order
+app.post('/orders', async (req, res, next) => {
+    const orderData = req.body;
+
+    try {
+        const collection = db.collection('orders'); // Assuming you have an 'orders' collection
+        const result = await collection.insertOne(orderData);
+        res.status(201).send({ message: 'Order created successfully', orderId: result.insertedId });
+    } catch (err) {
+        console.error("Error inserting order:", err); // Log the error
+        next(err);
+    }
+});
+
 app.put('/collection/:collectionName/:id', async (req, res, next) => {
     const { collectionName, id } = req.params;
     const updatedDocument = req.body;
