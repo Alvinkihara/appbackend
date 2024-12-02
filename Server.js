@@ -33,6 +33,18 @@ client.connect()
 // Static file serving and logging
 app.use(morgan("short"));
 
+
+// Route to get all lessons
+app.get('/lessons', async (req, res, next) => {
+    try {
+        const collection = db.collection('lessons'); //  actual collection name
+        const lessons = await collection.find({}).toArray();
+        res.json(lessons);
+    } catch (err) {
+        next(err);
+    }
+});
+
 // Route to get all documents from a collection
 app.get('/collection/:collectionName', async (req, res, next) => {
     const { collectionName } = req.params;
