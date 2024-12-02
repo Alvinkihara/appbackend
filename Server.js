@@ -151,6 +151,7 @@ app.put('/collection/:collectionName/:id', async (req, res, next) => {
     }
 });
 
+
 // Route to delete a specific document by ID from a collection
 app.delete('/collection/:collectionName/:id', async (req, res, next) => {
     const { collectionName, id } = req.params;
