@@ -3,10 +3,28 @@ const http = require('http');
 const cors = require("cors");
 const morgan = require("morgan");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(morgan("short"));
+
+// Serve static files from the 'public' directory
+app.use('/images', express.static(path.join(__dirname, "../backend/appbackend-end/Images/English.png")));
+
+// Custom middleware to check if an image exists
+app.get('/images/:imageName', (req, res, next) => {
+    const imagePath = path.join(__dirname, '"../appbackend-end/Images/English.png"', req.params.imageName);
+    
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            return res.status(404).send({ error: 'Image not found' });
+        }
+        res.sendFile(imagePath);
+    });
+});
 
 // Database configuration
 const uri = "mongodb+srv://ak2237:Mongodb@webstore.oq4ce.mongodb.net"; // Your MongoDB connection string
@@ -30,9 +48,6 @@ client.connect()
         console.error("Failed to connect to MongoDB", err);
     });
 
-// Static file serving and logging
-app.use(morgan("short"));
-
 // Route to get all documents from a collection
 app.get('/collection/:collectionName', async (req, res, next) => {
     const { collectionName } = req.params;
@@ -45,28 +60,7 @@ app.get('/collection/:collectionName', async (req, res, next) => {
     }
 });
 
-// Route to get a specific document by ID from a collection
-app.get('/collection/:collectionName/:id', async (req, res, next) => {
-    const { collectionName, id } = req.params;
-
-    // Validate the ID format
-    if (!ObjectId.isValid(id)) {
-        return res.status(400).send({ error: 'Invalid ID format' });
-    }
-
-    try {
-        const collection = db.collection(collectionName);
-        const document = await collection.findOne({ _id: new ObjectId(id) });
-
-        if (!document) {
-            return res.status(404).send({ error: 'Document not found' });
-        }
-
-        res.json(document);
-    } catch (err) {
-        next(err);
-    }
-});
+// Remaining routes...
 
 // Error handling middleware
 app.use((err, req, res, next) => {
